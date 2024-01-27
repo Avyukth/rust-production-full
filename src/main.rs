@@ -46,6 +46,7 @@ async fn main() -> Result<()> {
     .init();
 
     let mm = ModelManager::new().await?;
+    
 
     // let routes_apis = web::routes_tickets::routes(mc.clone())
     //     .route_layer(middleware::from_fn(web::mw_auth::mw_require_auth));
