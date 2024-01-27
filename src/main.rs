@@ -1,3 +1,10 @@
+mod config
+mod ctx;
+mod error;
+mod log;
+mod model;
+mod web;
+
 use crate::log::log_request;
 use crate::model::ModelController;
 
@@ -16,11 +23,7 @@ use tower_cookies::CookieManagerLayer;
 use tower_http::services::ServeDir;
 use uuid::Uuid;
 
-mod ctx;
-mod error;
-mod log;
-mod model;
-mod web;
+
 #[derive(Debug, Deserialize)]
 struct HelloParams {
     name: Option<String>,
