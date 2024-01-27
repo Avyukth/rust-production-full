@@ -46,7 +46,6 @@ async fn main() -> Result<()> {
     .init();
 
     let mm = ModelManager::new().await?;
-    
 
     // let routes_apis = web::routes_tickets::routes(mc.clone())
     //     .route_layer(middleware::from_fn(web::mw_auth::mw_require_auth));
@@ -60,7 +59,7 @@ async fn main() -> Result<()> {
         .layer(CookieManagerLayer::new())
         .fallback_service(route_static::serve_dir());
     let address = SocketAddr::from(([127, 0, 0, 1], 9090));
-    println!("\n--->> Starting server on http://{address}\n");
+    println!("\n-->> Starting server on http://{address}\n");
     axum::Server::bind(&address)
         .serve(routes_all.into_make_service())
         .await
@@ -70,7 +69,7 @@ async fn main() -> Result<()> {
 }
 
 async fn handler_hello(Query(params): Query<HelloParams>) -> impl IntoResponse {
-    println!("--->> {:<12} handler_hello - {params:?}", "HANDLER");
+    println!("-->> {:<12} handler_hello - {params:?}", "HANDLER");
 
     let name = params.name.as_deref().unwrap_or("World");
     Html(format!(
@@ -79,7 +78,7 @@ async fn handler_hello(Query(params): Query<HelloParams>) -> impl IntoResponse {
 }
 
 async fn handler_hello_2(Path(name): Path<String>) -> impl IntoResponse {
-    println!("--->> {:<12} handler_hello - {name:?}", "HANDLER");
+    println!("-->> {:<12} handler_hello - {name:?}", "HANDLER");
 
     Html(format!(
         "<p>Welcome to awesome <strong>{name}</strong> rust<p>"
@@ -92,7 +91,7 @@ async fn main_response_mapper(
     req_method: Method,
     res: Response,
 ) -> Response {
-    println!("--->> {:<12} main_response_mapper", "RESPONSE_MAPPER");
+    println!("-->> {:<12} main_response_mapper", "RESPONSE_MAPPER");
     let uuid = Uuid::new_v4();
     let service_error = res.extensions().get::<Error>();
     let client_status_error = service_error.map(|se| se.client_status_and_error());
@@ -108,13 +107,13 @@ async fn main_response_mapper(
                     }
                 }
             );
-            println!("--->> client_error_body : {client_error_body}");
+            println!("-->> client_error_body : {client_error_body}");
             (*status_code, Json(client_error_body)).into_response()
         });
 
     let client_error = client_status_error.unzip().1;
     let _ = log_request(uuid, req_method, uri, ctx, service_error, client_error).await;
-    println!("   ->> server log line - {uuid} - Error: {service_error:?}");
+    info!("-->> server log line - {uuid} - Error: {service_error:?}");
     println!();
     error_response.unwrap_or(res)
 }
