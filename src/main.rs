@@ -38,21 +38,19 @@ fn route_static() -> Router {
 
 #[tokio::main]
 async fn main() -> Result<()> {
-    let mc = ModelController::new().await?;
+    let mm = ModelManager::new().await?;
 
-    let routes_apis = web::routes_tickets::routes(mc.clone())
-        .route_layer(middleware::from_fn(web::mw_auth::mw_require_auth));
+    // let routes_apis = web::routes_tickets::routes(mc.clone())
+    //     .route_layer(middleware::from_fn(web::mw_auth::mw_require_auth));
     let routes_all = Router::new()
-        .merge(routes_hello())
-        .merge(web::routes_login::routes())
-        .nest("/api", routes_apis)
-        .layer(middleware::map_response(main_response_mapper))
+        .merge(routes_login::routes())
+        .layer(middleware::map_response(mw_response_map))
         .layer(middleware::from_fn_with_state(
             mc.clone(),
-            web::mw_auth::mw_ctx_resolver,
+            mw_ctx_resolver,
         ))
         .layer(CookieManagerLayer::new())
-        .fallback_service(route_static());
+        .fallback_service(route_static::serve_dir());
     let address = SocketAddr::from(([127, 0, 0, 1], 9090));
     println!("\n--->> Starting server on http://{address}\n");
     axum::Server::bind(&address)
