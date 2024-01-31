@@ -15,7 +15,7 @@ pub async fn mw_require_auth<B>(
     req: Request<B>,
     next: Next<B>,
 ) -> Result<Response> {
-    debug!( {:<12} - mw_require_auth", "MIDDLEWARE");
+    debug!(" {:<12} - mw_require_auth", "MIDDLEWARE");
 
     ctx?;
     Ok(next.run(req).await)
@@ -39,7 +39,7 @@ impl<S: Send + Sync> FromRequestParts<S> for Ctx {
         parts: &mut Parts,
         _state: &S,
     ) -> std::result::Result<Self, Self::Rejection> {
-        debug!( {:<12} - Ctx", "EXTRACTOR");
+        debug!(" {:<12} - Ctx", "EXTRACTOR");
 
         parts
             .extensions
