@@ -72,7 +72,7 @@ async fn main() -> Result<()> {
 }
 
 async fn handler_hello(Query(params): Query<HelloParams>) -> impl IntoResponse {
-    println!("-->> {:<12} handler_hello - {params:?}", "HANDLER");
+    debug!( {:<12} handler_hello - {params:?}", "HANDLER");
 
     let name = params.name.as_deref().unwrap_or("World");
     Html(format!(
@@ -81,7 +81,7 @@ async fn handler_hello(Query(params): Query<HelloParams>) -> impl IntoResponse {
 }
 
 async fn handler_hello_2(Path(name): Path<String>) -> impl IntoResponse {
-    println!("-->> {:<12} handler_hello - {name:?}", "HANDLER");
+    debug!( {:<12} handler_hello - {name:?}", "HANDLER");
 
     Html(format!(
         "<p>Welcome to awesome <strong>{name}</strong> rust<p>"
@@ -94,7 +94,7 @@ async fn main_response_mapper(
     req_method: Method,
     res: Response,
 ) -> Response {
-    println!("-->> {:<12} main_response_mapper", "RESPONSE_MAPPER");
+    debug!( {:<12} main_response_mapper", "RESPONSE_MAPPER");
     let uuid = Uuid::new_v4();
     let service_error = res.extensions().get::<Error>();
     let client_status_error = service_error.map(|se| se.client_status_and_error());
@@ -110,7 +110,7 @@ async fn main_response_mapper(
                     }
                 }
             );
-            println!("-->> client_error_body : {client_error_body}");
+            debug!( client_error_body : {client_error_body}");
             (*status_code, Json(client_error_body)).into_response()
         });
 
