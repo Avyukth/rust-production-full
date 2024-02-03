@@ -1,43 +1,17 @@
-use crate::ctx::Ctx;
-use crate::error::Result;
-use crate::model::{ModelController, Ticket, TicketForCreate};
-use axum::extract::Path;
-use axum::routing::{delete, post};
-use axum::Router;
-use axum::{extract::State, Json};
+use axum::handler::HandlerWithoutStateExt;
+use axum::http::StatusCode;
+use axum::routing::{any_service, MethodRouter};
+use tower_http::services::ServeDir;
 
-pub fn routes(mc: ModelController) -> Router {
-    Router::new()
-        .route("/tickets", post(create_ticket).get(list_tickets))
-        .route("/tickets/:id", delete(delete_ticket))
-        .with_state(mc)
-}
 
-async fn create_ticket(
-    State(mc): State<ModelController>,
-    ctx: Ctx,
-    Json(ticket_fc): Json<TicketForCreate>,
-) -> Result<Json<Ticket>> {
-    debug!(" {:<12} -  create_ticket", "API_TICKET_HANDLER");
-    let ticket = mc.create_ticket(ctx, ticket_fc).await?;
+const WEB_FOLDER: &str = "web-folder";
 
-    Ok(Json(ticket))
-}
-
-async fn list_tickets(mc: State<ModelController>, ctx: Ctx) -> Result<Json<Vec<Ticket>>> {
-    debug!(" {:<12} -  list_ticket", "API_TICKET_HANDLER");
-
-    let tickets = mc.list_tickets(ctx).await?;
-    Ok(Json(tickets))
-}
-
-async fn delete_ticket(
-    mc: State<ModelController>,
-    ctx: Ctx,
-    Path(id): Path<u64>,
-) -> Result<Json<Ticket>> {
-    debug!(" {:<12} -  delete_ticket", "API_TICKET_HANDLER");
-
-    let ticket = mc.delete_ticket(ctx, id).await?;
-    Ok(Json(ticket))
+pub fn serve_dir() -> MethodRouter{
+    async fn handle_404()->(StatusCode, &'static str){
+            (StatusCode::NOT_FOUND, "Resource not found")
+    }   
+    any_service(
+        ServeDir::new(WEB_FOLDER)
+     .not_found_service(handle_404.into_service()),
+    )
 }
