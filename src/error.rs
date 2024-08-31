@@ -14,6 +14,7 @@ pub enum Error {
     AuthFailCtxNotInRequestExtension,
     AuthFailTokenWrongFormat,
     TicketDeleteFailedIdNotFound { id: u64 },
+    ConfigMissingEnv(&'static str),
 }
 
 impl IntoResponse for Error {
